@@ -67,7 +67,7 @@ patreonModule.start = function (data) {
 
                 // The Final Action
                 if (typeof patreon_database === "string" && patreon_database.length > 0) {
-                    await require('./process')(req, res, app.db.ref(patreon_database), http_page, firebase);
+                    await require('./files/process')(req, res, app.db.ref(patreon_database), http_page, firebase);
                     return;
                 }
 
