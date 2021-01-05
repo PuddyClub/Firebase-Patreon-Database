@@ -6,6 +6,7 @@ patreonModule.start = function (data) {
     const express = require('firebase-webhook-express-default');
     patreonModule.app = express(async (req, res) => {
 
+        // Lodash Module
         const _ = require('lodash');
 
         // Create Settings
