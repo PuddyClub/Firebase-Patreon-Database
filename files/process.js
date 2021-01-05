@@ -51,7 +51,9 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                     ) {
 
                         // Custom Module Config
-                        custom_modules = _.defaultsDeep({}, custom_modules, []);
+                        if (!Array.isArray(custom_modules)) {
+                            custom_modules = [];
+                        }
 
                         // Prepare User Data
                         db = db.child(firebase.databaseEscape(req.query.account));
