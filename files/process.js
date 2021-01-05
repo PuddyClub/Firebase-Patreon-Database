@@ -1,4 +1,4 @@
-module.exports = async function (req, res, db, http_page, firebase) {
+module.exports = async function (req, res, db, http_page, firebase, custom_modules, _) {
 
     try {
 
@@ -49,6 +49,9 @@ module.exports = async function (req, res, db, http_page, firebase) {
                             last_event_item === "members:pledge:delete"
                         )
                     ) {
+
+                        // Custom Module Config
+                        custom_modules = _.defaultsDeep({}, custom_modules, []);
 
                         // Prepare User Data
                         db = db.child(firebase.databaseEscape(req.query.account));
