@@ -264,11 +264,21 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                 // Set Campaign Data
                                 await campaign_data.set(finalData.vanilla.campaign);
 
+                                // Prepare Custom Module
+                                const custom_module_manager = require('puddy-lib/libs/custom_module_loader');
+                                const custom_module_options = {
+                                    data: insert_data,
+                                    db: patreon_data,
+                                    social: social_list
+                                };
+
                                 // Insert Patreon Data
                                 if (isInsert) {
                                     await patreon_data.set(insert_data);
+                                    await custom_module_manager.run(custom_modules, custom_module_options, 'add');
                                 } else {
                                     await patreon_data.remove();
+                                    await custom_module_manager.run(custom_modules, custom_module_options, 'remove');
                                 }
 
                             }
