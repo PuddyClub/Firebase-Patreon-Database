@@ -17,7 +17,7 @@
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "firebase-webhook-express-default": "git+https://github.com/TinyPudding/Firebase-Webhook-Express-Default.git",
-    "for-promise": "^1.0.4",
+    "for-promise": "^1.1.2",
     "helmet": "^4.3.1",
     "lodash": "^4.17.20",
     "moment-timezone": "^0.5.32",
