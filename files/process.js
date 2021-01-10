@@ -267,8 +267,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                     });
 
                                     // Complete
-                                    fn();
-                                    return;
+                                    return fn();
 
                                 });
 
