@@ -286,7 +286,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                 await campaign_data.set(finalData.vanilla.campaign);
 
                                 // Prepare Custom Module
-                                const custom_module_manager = require('puddy-lib/libs/custom_module_loader');
+                                const custom_module_manager = require('@tinypudding/puddy-lib/libs/custom_module_loader');
                                 const custom_module_options = {
                                     data: insert_data,
                                     db: patreon_data,

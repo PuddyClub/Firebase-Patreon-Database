@@ -3,7 +3,7 @@ const patreonModule = {};
 
 // Start
 patreonModule.start = function (data) {
-    const express = require('firebase-webhook-express-default');
+    const express = require('@tinypudding/firebase-webhook-express-default');
     patreonModule.app = express(async (req, res) => {
 
         // Lodash Module
@@ -22,7 +22,7 @@ patreonModule.start = function (data) {
         // Start Firebase
         try {
 
-            const firebase = require('puddy-lib/firebase');
+            const firebase = require('@tinypudding/puddy-lib/firebase');
             if (tinyCfg.firebase) {
                 firebase.start(require('firebase-admin'), tinyCfg.options, tinyCfg.firebase);
             } else {
@@ -33,11 +33,11 @@ patreonModule.start = function (data) {
             const app = firebase.get(tinyCfg.options.id);
 
             // Check Domain
-            let checkDomain = require('puddy-lib/http/check_domain');
+            let checkDomain = require('@tinypudding/puddy-lib/http/check_domain');
             const theDomain = checkDomain.get(req);
 
             // Prepare HTTP Page
-            const http_page = require('puddy-lib/http/HTTP-1.0');
+            const http_page = require('@tinypudding/puddy-lib/http/HTTP-1.0');
 
             // Exist
             if (theDomain) {

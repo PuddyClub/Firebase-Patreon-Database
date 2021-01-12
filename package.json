@@ -1,5 +1,5 @@
 {
-  "name": "firebase-patreon-database",
+  "name": "@tinypudding/firebase-patreon-database",
   "version": "1.0.0",
   "description": "Firebase Database to Patreon Webhooks.",
   "main": "index.js",
@@ -14,14 +14,14 @@
     "patreon"
   ],
   "dependencies": {
+    "@tinypudding/firebase-webhook-express-default": "^1.0.0",
+    "@tinypudding/puddy-lib": "^1.0.0",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "firebase-webhook-express-default": "git+https://github.com/TinyPudding/Firebase-Webhook-Express-Default.git",
     "for-promise": "^1.2.5",
     "helmet": "^4.3.1",
     "lodash": "^4.17.20",
-    "moment-timezone": "^0.5.32",
-    "puddy-lib": "git+https://github.com/TinyPudding/Puddy-Lib.git"
+    "moment-timezone": "^0.5.32"
   },
   "author": "Yasmin Seidel (JasminDreasond)",
   "license": "MIT",
