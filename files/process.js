@@ -234,7 +234,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                 const forPromise = require('for-promise');
 
                                 // Insert Social Data
-                                await forPromise(social_list.data, function (item, fn, fn_error, extra) {
+                                await forPromise({ data: social_list.data }, function (item, fn, fn_error, extra) {
 
                                     // Prepare Patreon Data
                                     insert_data[item] = social_list.data[item];
