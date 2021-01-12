@@ -248,7 +248,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                         insert_data[item] = social_list.data[item];
 
                                         const extraForAwait = extra({ data: social_list.data });
-                                        extraForAwait.run(function (item2, fn, fn_error) {
+                                        extraForAwait.run(function (item2, fn) {
 
                                             // Prepare Data to Insert
                                             const newData = {};
