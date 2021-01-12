@@ -247,7 +247,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                         newData[item] = social_list.data[item];
 
                                         // Try Update Data
-                                        if (newData) {
+                                        if (newData[item]) {
                                             social_list.db[item2].update(newData).then(() => {
                                                 return fn();
                                             }).catch(err => {
