@@ -236,38 +236,34 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                 // Insert Social Data
                                 await forPromise({ data: social_list.data }, function (item, fn, fn_error, extra) {
 
-                                    // Add Extra FN
-                                    if (social_list.data) {
+                                    // Prepare Patreon Data
+                                    insert_data[item] = social_list.data[item];
 
-                                        // Prepare Patreon Data
-                                        insert_data[item] = social_list.data[item];
+                                    const extraForAwait = extra({ data: social_list.data });
+                                    extraForAwait.run(function (item2, fn, fn_error) {
 
-                                        const extraForAwait = extra({ data: social_list.data });
-                                        extraForAwait.run(function (item2, fn, fn_error) {
+                                        // Prepare Data to Insert
+                                        const newData = {};
+                                        newData[item] = social_list.data[item];
 
-                                            // Prepare Data to Insert
-                                            const newData = {};
-                                            newData[item] = social_list.data[item];
+                                        // Try Update Data
+                                        try {
+                                            social_list.db[item2].update(newData).then(() => {
+                                                return fn();
+                                            }).catch(err => {
+                                                return fn_error(err);
+                                            });
+                                        }
 
-                                            // Try Update Data
-                                            try {
-                                                social_list.db[item2].update(newData).then(() => {
-                                                    return fn();
-                                                }).catch(err => {
-                                                    return fn_error(err);
-                                                });
-                                            }
+                                        // Fail
+                                        catch (err) {
+                                            fn();
+                                        }
 
-                                            // Fail
-                                            catch (err) {
-                                                fn();
-                                            }
+                                        // Complete
+                                        return;
 
-                                            // Complete
-                                            return;
-
-                                        });
-                                    }
+                                    });
 
                                     // Complete
                                     return fn();
