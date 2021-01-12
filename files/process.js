@@ -153,85 +153,92 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                 };
 
                                 // Build Extra Data
-                                const build_extra_data = async function (options) {
+                                const build_extra_data = function (options) {
+                                    return new Promise(function (resolve, reject) {
 
-                                    // Prepare User Data
-                                    let user_data = null;
 
-                                    // Set User data
-                                    if (!options.var_name) {
+                                        // Prepare User Data
+                                        let user_data = null;
 
-                                        // Fix Var Name
-                                        options.var_name = options.database;
+                                        // Set User data
+                                        if (!options.var_name) {
 
-                                        // The User Data
-                                        if (finalData[options.var_name] && (typeof finalData[options.var_name].id === "string" || typeof finalData[options.var_name].id === "number")) {
-                                            user_data = db.child(options.database).child(firebase.databaseEscape(finalData[options.var_name].id));
-                                        }
+                                            // Fix Var Name
+                                            options.var_name = options.database;
 
-                                    } else {
+                                            // The User Data
+                                            if (finalData[options.var_name] && (typeof finalData[options.var_name].id === "string" || typeof finalData[options.var_name].id === "number")) {
+                                                user_data = db.child(options.database).child(firebase.databaseEscape(finalData[options.var_name].id));
+                                            }
 
-                                        // The User Data
-                                        if (typeof finalData[options.var_name] === "string" || typeof finalData[options.var_name] === "number") {
-                                            user_data = db.child(options.database).child(firebase.databaseEscape(finalData[options.var_name]));
-                                        }
+                                        } else {
 
-                                    }
-
-                                    // Exist Item
-                                    if (user_data) {
-
-                                        // Database Data
-                                        if (typeof finalData[options.var_name] !== "undefined") {
-
-                                            // Insert Database Data
-                                            if (isInsert) {
-
-                                                // Prepare Database Item
-                                                social_list.data[options.var_name] = finalData[options.var_name];
-
-                                                // Insert DB
-                                                social_list.db[options.var_name] = user_data;
-
-                                                await user_data.set(insert_data);
-
-                                            } else {
-                                                await user_data.remove();
+                                            // The User Data
+                                            if (typeof finalData[options.var_name] === "string" || typeof finalData[options.var_name] === "number") {
+                                                user_data = db.child(options.database).child(firebase.databaseEscape(finalData[options.var_name]));
                                             }
 
                                         }
 
-                                        // Delete Database Data
-                                        else if (last_data && typeof last_data[options.var_name] !== "undefined") {
+                                        // Exist Item
+                                        if (user_data) {
 
-                                            // Make the Action
-                                            await user_data.remove();
+                                            // Database Data
+                                            if (typeof finalData[options.var_name] !== "undefined") {
+
+                                                // Insert Database Data
+                                                if (isInsert) {
+
+                                                    // Prepare Database Item
+                                                    social_list.data[options.var_name] = finalData[options.var_name];
+
+                                                    // Insert DB
+                                                    social_list.db[options.var_name] = user_data;
+
+                                                    user_data.set(insert_data).then(() => { resolve(); return; }).catch(err => { reject(err); return; });
+
+                                                } else {
+                                                    user_data.remove().then(() => { resolve(); return; }).catch(err => { reject(err); return; });
+                                                }
+
+                                            }
+
+                                            // Delete Database Data
+                                            else if (last_data && typeof last_data[options.var_name] !== "undefined") {
+
+                                                // Make the Action
+                                                user_data.remove().then(() => { resolve(); return; }).catch(err => { reject(err); return; });
+
+                                            }
 
                                         }
 
-                                    }
+                                        // Nope
+                                        else {
+                                            reject(new Error('Database Realtime Not Found.'));
+                                        }
 
-                                    return;
+                                        // Complete
+                                        return;
 
+                                    });
                                 };
-
-                                // Discord
-                                await build_extra_data({ database: 'discord', var_name: 'discord_id' });
-
-                                // Google
-                                await build_extra_data({ database: 'google', var_name: 'google_id' });
-
-                                // Twitch
-                                await build_extra_data({ database: 'twitch' });
-
-                                // Twitter
-                                await build_extra_data({ database: 'twitter' });
-
-                                // Youtube
-                                await build_extra_data({ database: 'youtube' });
 
                                 // For Promise
                                 const forPromise = require('for-promise');
+
+                                // Build Extra Data
+                                const extra_data = [
+                                    { database: 'discord', var_name: 'discord_id' },
+                                    { database: 'google', var_name: 'google_id' },
+                                    { database: 'twitch' },
+                                    { database: 'twitter' },
+                                    { database: 'youtube' }
+                                ];
+
+                                await forPromise({ data: extra_data }, function (item, fn, fn_error) {
+                                    build_extra_data(extra_data[item]).then(() => { fn(); return; }).catch(err => { fn_error(err); return; });
+                                });
 
                                 // Insert Social Data
                                 if (social_list && social_list.data) {
