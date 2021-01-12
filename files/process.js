@@ -234,44 +234,47 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                 const forPromise = require('for-promise');
 
                                 // Insert Social Data
-                                await forPromise({ data: social_list.data }, function (item, fn, fn_error, extra) {
+                                if (social_list.data) {
+                                    await forPromise({ data: social_list.data }, function (item, fn, fn_error, extra) {
 
-                                    // Prepare Patreon Data
-                                    insert_data[item] = social_list.data[item];
+                                        // Add Extra FN
+                                        if (social_list.data) {
 
-                                    // Add Extra FN
-                                    if (social_list.data) {
-                                        const extraForAwait = extra(social_list.data);
-                                        extraForAwait.run(function (item2, fn, fn_error) {
+                                            // Prepare Patreon Data
+                                            insert_data[item] = social_list.data[item];
 
-                                            // Prepare Data to Insert
-                                            const newData = {};
-                                            newData[item] = social_list.data[item];
+                                            const extraForAwait = extra(social_list.data);
+                                            extraForAwait.run(function (item2, fn, fn_error) {
 
-                                            // Try Update Data
-                                            try {
-                                                social_list.db[item2].update(newData).then(() => {
-                                                    return fn();
-                                                }).catch(err => {
-                                                    return fn_error(err);
-                                                });
-                                            }
+                                                // Prepare Data to Insert
+                                                const newData = {};
+                                                newData[item] = social_list.data[item];
 
-                                            // Fail
-                                            catch (err) {
-                                                fn();
-                                            }
+                                                // Try Update Data
+                                                try {
+                                                    social_list.db[item2].update(newData).then(() => {
+                                                        return fn();
+                                                    }).catch(err => {
+                                                        return fn_error(err);
+                                                    });
+                                                }
 
-                                            // Complete
-                                            return;
+                                                // Fail
+                                                catch (err) {
+                                                    fn();
+                                                }
 
-                                        });
-                                    }
+                                                // Complete
+                                                return;
 
-                                    // Complete
-                                    return fn();
+                                            });
+                                        }
 
-                                });
+                                        // Complete
+                                        return fn();
+
+                                    });
+                                }
 
                                 // Insert Full Patreon Data
                                 insert_data.data = {
