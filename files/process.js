@@ -247,18 +247,12 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                         newData[item] = social_list.data[item];
 
                                         // Try Update Data
-                                        try {
-                                            social_list.db[item2].update(newData).then(() => {
-                                                return fn();
-                                            }).catch(err => {
-                                                return fn_error(err);
-                                            });
-                                        }
+                                        social_list.db[item2].update(newData).then(() => {
+                                            return fn();
+                                        }).catch(err => {
+                                            return fn();
+                                        });
 
-                                        // Fail
-                                        catch (err) {
-                                            fn();
-                                        }
 
                                         // Complete
                                         return;
