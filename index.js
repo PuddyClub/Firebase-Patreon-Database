@@ -77,7 +77,7 @@ patreonModule.start = function (data) {
 
                 // Nope
                 else {
-                    logger.error(new Error('Invalid Domain!'));
+                    logger.error(new Error(`Invalid Domain! ${theDomain}`));
                     return http_page.send(res, 403);
                 }
 
