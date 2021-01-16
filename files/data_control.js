@@ -8,6 +8,9 @@ module.exports = {
             campaign: {}
         };
 
+        // Logger
+        const logger = require('@tinypudding/puddy-lib/firebase/logger');
+
         // Build Data
         try {
 
@@ -140,7 +143,7 @@ module.exports = {
             finalData.vanilla = fullData;
 
         } catch (e) {
-            console.error(e);
+            logger.error(e);
             finalData = null;
         }
 

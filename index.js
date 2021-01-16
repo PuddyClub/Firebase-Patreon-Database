@@ -6,6 +6,9 @@ patreonModule.start = function (data) {
     const express = require('@tinypudding/firebase-webhook-express-default');
     patreonModule.app = express(async (req, res) => {
 
+        // Logger
+        const logger = require('@tinypudding/puddy-lib/firebase/logger');
+
         // Lodash Module
         const _ = require('lodash');
 
@@ -74,7 +77,7 @@ patreonModule.start = function (data) {
 
                 // Nope
                 else {
-                    console.error('Invalid Domain!');
+                    logger.error(new Error('Invalid Domain!'));
                     return http_page.send(res, 403);
                 }
 
@@ -82,16 +85,15 @@ patreonModule.start = function (data) {
 
             // Nope
             else {
-                console.error('Domain not found!');
+                logger.error(new Error('Domain not found!'));
                 return http_page.send(res, 404);
             }
 
-        } 
-        
+        }
+
         // Error
         catch (err) {
-            console.error(err);
-            console.error(err.message);
+            logger.error(err);
             return http_page.send(res, 500);
         }
 

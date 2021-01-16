@@ -1,5 +1,8 @@
 module.exports = async function (req, res, db, http_page, firebase, custom_modules, _) {
 
+    // Logger
+    const logger = require('@tinypudding/puddy-lib/firebase/logger');
+
     try {
 
         // Default Patreon Account
@@ -315,12 +318,12 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                         // No Event Text
                         if (typeof last_event_item !== "string") {
-                            console.error('Invalid Patreon Event Type!');
+                            logger.error(new Error('Invalid Patreon Event Type!'));
                         }
 
                         // Event Detected
                         else {
-                            console.error(`Invalid Patreon Event Type! (${last_event_item})`);
+                            logger.error(new Error(`Invalid Patreon Event Type! (${last_event_item})`));
                         }
 
                         // Send Error Page
@@ -332,7 +335,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                 // Error Verify
                 else {
-                    console.error('The data sent was not authorized by the Secret Patreon Key!!');
+                    logger.warn(new Error('The data sent was not authorized by the Secret Patreon Key!!'));
                     return http_page.send(res, 401);
                 }
 
@@ -340,7 +343,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
             // No Value
             else {
-                console.error('Invalid Account Name Size!');
+                logger.warn(new Error('Invalid Account Name Size!'));
                 return http_page.send(res, 411);
             }
 
@@ -348,15 +351,14 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
         // No Value
         else {
-            console.error('Invalid Account Name!');
+            logger.warn(new Error('Invalid Account Name!'));
             return http_page.send(res, 403);
         }
 
     } catch (err) {
 
         // HTTP Page
-        console.error(err);
-        console.error(err.message);
+        logger.error(err);
         return http_page.send(res, 500);
 
     }
