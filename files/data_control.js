@@ -9,7 +9,7 @@ module.exports = {
         };
 
         // Logger
-        const logger = require('@tinypudding/puddy-lib/firebase/logger');
+        const logger = require('@tinypudding/firebase-lib/logger');
 
         // Build Data
         try {

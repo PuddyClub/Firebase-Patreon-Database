@@ -1,7 +1,7 @@
 module.exports = async function (req, res, db, http_page, firebase, custom_modules, _) {
 
     // Logger
-    const logger = require('@tinypudding/puddy-lib/firebase/logger');
+    const logger = require('@tinypudding/firebase-lib/logger');
 
     try {
 

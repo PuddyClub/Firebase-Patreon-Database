@@ -7,7 +7,7 @@ patreonModule.start = function (data) {
     patreonModule.app = express(async (req, res) => {
 
         // Logger
-        const logger = require('@tinypudding/puddy-lib/firebase/logger');
+        const logger = require('@tinypudding/firebase-lib/logger');
 
         // Lodash Module
         const _ = require('lodash');
@@ -25,7 +25,7 @@ patreonModule.start = function (data) {
         // Start Firebase
         try {
 
-            const firebase = require('@tinypudding/puddy-lib/firebase');
+            const firebase = require('@tinypudding/firebase-lib');
             if (tinyCfg.firebase) {
                 firebase.start(require('firebase-admin'), tinyCfg.options, tinyCfg.firebase);
             } else {
