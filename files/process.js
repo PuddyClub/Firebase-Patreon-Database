@@ -64,6 +64,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                         // Prepare Body
                         req.body = JSON.parse(req.body);
                         const finalData = await patreonManager.get(req.body);
+                        logger.log(`Patreon User Data.`, finalData);
 
                         // Exist Data
                         if (finalData && typeof finalData.patron_id === "string" && finalData.patron_id !== "") {
