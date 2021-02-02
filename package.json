@@ -1,6 +1,6 @@
 {
   "name": "@tinypudding/firebase-patreon-database",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Firebase Database to Patreon Webhooks.",
   "main": "index.js",
   "scripts": {
