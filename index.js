@@ -6,11 +6,14 @@ patreonModule.start = function (data) {
     const express = require('@tinypudding/firebase-webhook-express-default');
     patreonModule.app = express(async (req, res) => {
 
-        // Logger
-        const logger = require('@tinypudding/firebase-lib/logger');
-
         // Lodash Module
         const _ = require('lodash');
+
+        // Prepare Firebase
+        const firebase = require('@tinypudding/firebase-lib');
+
+        // Logger
+        const logger = firebase.logger;
 
         // Create Settings
         const tinyCfg = _.defaultsDeep({}, data.firebase, {
@@ -25,12 +28,8 @@ patreonModule.start = function (data) {
         // Start Firebase
         try {
 
-            const firebase = require('@tinypudding/firebase-lib');
-            if (tinyCfg.firebase) {
-                firebase.start(require('firebase-admin'), tinyCfg.options, tinyCfg.firebase);
-            } else {
-                firebase.start(require('firebase-admin'), tinyCfg.options, tinyCfg.firebase);
-            }
+            // Start Firebase
+            firebase.start(require('firebase-admin'), tinyCfg.options, tinyCfg.firebase);
 
             // App
             const app = firebase.get(tinyCfg.options.id);

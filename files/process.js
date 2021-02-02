@@ -1,7 +1,8 @@
 module.exports = async function (req, res, db, http_page, firebase, custom_modules, _) {
 
-    // Logger
-    const logger = require('@tinypudding/firebase-lib/logger');
+    // Modules
+    const logger = firebase.logger;
+    const objType = require('@tinypudding/puddy-lib/get/objType');
 
     try {
 
@@ -156,6 +157,9 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                     db: {}
                                 };
 
+                                // Prepare Delete
+                                const deleteDatabases = {};
+
                                 // Build Extra Data
                                 const build_extra_data = function (options) {
                                     return new Promise(function (resolve, reject) {
@@ -219,7 +223,20 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                                         // Nope
                                         else {
-                                            reject(new Error('Database Realtime Not Found.'));
+
+                                            // Create Cache
+                                            if (!deleteDatabases[options.database]) {
+                                                deleteDatabases[options.database] = {
+                                                    db: db.child(options.database),
+                                                    users: []
+                                                };
+                                            }
+
+                                            // Add User
+                                            if (deleteDatabases[options.database].users.indexOf(finalData.patron_id) < 0) {
+                                                deleteDatabases[options.database].users.push(finalData.patron_id);
+                                            }
+
                                         }
 
                                         // Complete
@@ -280,6 +297,55 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                     });
                                 }
 
+                                // Delete OLD Data
+                                await forPromise({ data: deleteDatabases }, function (item, fn, fn_error, extra) {
+                                    firebase.getDBData(deleteDatabases[item].db, 'value').then(accounts => {
+
+                                        const prepareExtra = extra({ data: deleteDatabases[item].users });
+                                        prepareExtra.run(function (user, fn, fn_error) {
+
+                                            // Is Object
+                                            if (objType(accounts, 'object')) {
+
+                                                let accountID = null;
+
+                                                // Get User Account
+                                                for (const account in accounts) {
+                                                    if (accounts[account].patreon_id === deleteDatabases[item].users[user]) {
+                                                        accountID = account;
+                                                        break;
+                                                    }
+                                                }
+
+                                                // Delete
+                                                if (typeof accountID === "string" || typeof accountID === "number") {
+                                                    deleteDatabases[item].db.child(account).remove().then(() => {
+                                                        fn(); return;
+                                                    }).catch(() => {
+                                                        logger.error(err); fn_error(err); return;
+                                                    });
+                                                }
+
+                                                // Nope
+                                                else { fn(); }
+
+                                            }
+
+                                            // Nope
+                                            else { fn(); }
+
+                                            // Complete
+                                            return;
+
+                                        });
+
+                                        // Complete
+                                        fn();
+                                        return;
+
+                                    }).catch(err => { logger.error(err); fn_error(err); return; });
+                                });
+
                                 // Insert Full Patreon Data
                                 insert_data.data = {
                                     tiers: finalData.vanilla.tiers,
@@ -308,9 +374,15 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                             }
 
+                            return http_page.send(res, 200);
+
                         }
 
-                        return http_page.send(res, 200);
+                        // Nope
+                        else {
+                            logger.error(new Error('Invalid Final Data!'));
+                            return http_page.send(res, 500);
+                        }
 
                     }
 
