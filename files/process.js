@@ -223,20 +223,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                                         // Nope
                                         else {
-
-                                            // Create Cache
-                                            if (!deleteDatabases[options.database]) {
-                                                deleteDatabases[options.database] = {
-                                                    db: db.child(options.database),
-                                                    users: []
-                                                };
-                                            }
-
-                                            // Add User
-                                            if (deleteDatabases[options.database].users.indexOf(finalData.patron_id) < 0) {
-                                                deleteDatabases[options.database].users.push(finalData.patron_id);
-                                            }
-
+                                            deleteDatabases[options.database] = db.child(options.database);
                                         }
 
                                         // Complete
@@ -298,20 +285,20 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                 }
 
                                 // Delete OLD Data
-                                await forPromise({ data: deleteDatabases }, function (item, fn, fn_error, extra) {
-                                    firebase.getDBData(deleteDatabases[item].db, 'value').then(accounts => {
-
-                                        const prepareExtra = extra({ data: deleteDatabases[item].users });
-                                        prepareExtra.run(function (user, fn, fn_error) {
+                                if (Object.keys(deleteDatabases).length > 0) {
+                                    await forPromise({ data: deleteDatabases }, function (item, fn, fn_error) {
+                                        logger.log(`The User "${finalData.patron_id}" don't have the social medias. ${item}`);
+                                        firebase.getDBData(deleteDatabases[item], 'value').then(accounts => {
 
                                             // Is Object
                                             if (objType(accounts, 'object')) {
 
+                                                // Get Account ID
                                                 let accountID = null;
 
                                                 // Get User Account
                                                 for (const account in accounts) {
-                                                    if (accounts[account].patreon_id === deleteDatabases[item].users[user]) {
+                                                    if (accounts[account].patreon_id === finalData.patron_id) {
                                                         accountID = account;
                                                         break;
                                                     }
@@ -319,7 +306,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                                                 // Delete
                                                 if (typeof accountID === "string" || typeof accountID === "number") {
-                                                    deleteDatabases[item].db.child(account).remove().then(() => {
+                                                    deleteDatabases[item].child(account).remove().then(() => {
                                                         fn(); return;
                                                     }).catch(() => {
                                                         logger.error(err); fn_error(err); return;
@@ -337,14 +324,9 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                             // Complete
                                             return;
 
-                                        });
-
-                                        // Complete
-                                        fn();
-                                        return;
-
-                                    }).catch(err => { logger.error(err); fn_error(err); return; });
-                                });
+                                        }).catch(err => { logger.error(err); fn_error(err); return; });
+                                    });
+                                }
 
                                 // Insert Full Patreon Data
                                 insert_data.data = {
