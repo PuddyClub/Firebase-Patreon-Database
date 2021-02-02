@@ -14,9 +14,9 @@
     "patreon"
   ],
   "dependencies": {
-    "@tinypudding/firebase-lib": "^1.0.0",
+    "@tinypudding/firebase-lib": "^1.0.4",
     "@tinypudding/firebase-webhook-express-default": "^1.0.2",
-    "@tinypudding/puddy-lib": "^1.0.17",
+    "@tinypudding/puddy-lib": "^1.1.6",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "for-promise": "^1.3.2",
