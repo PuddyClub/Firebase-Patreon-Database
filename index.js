@@ -43,7 +43,7 @@ patreonModule.start = function (data) {
             const http_page = require('@tinypudding/puddy-lib/http/HTTP-1.0');
 
             // Log New Event
-            logger.log(`Patreon Event in the domain ${theDomain} with the event code "${req.header('x-patreon-signature')}:${req.header('x-patreon-event')}".`, req.query);
+            logger.log(`Patreon Event in the domain ${theDomain} with the event code "${req.header('x-patreon-signature')}:${req.header('x-patreon-event')}".`, req.query, data);
 
             // Exist
             if (theDomain) {
