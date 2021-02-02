@@ -219,11 +219,15 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                                             }
 
+                                            // Nothing
+                                            else { resolve(); }
+
                                         }
 
                                         // Nope
                                         else {
                                             deleteDatabases[options.database] = db.child(options.database);
+                                            resolve();
                                         }
 
                                         // Complete
@@ -291,7 +295,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                         firebase.getDBData(deleteDatabases[item], 'value').then(accounts => {
 
                                             // Is Object
-                                            if (objType(accounts, 'object')) {
+                                            if (objType(accounts, 'object') || Array.isArray(accounts)) {
 
                                                 // Get Account ID
                                                 let accountID = null;
