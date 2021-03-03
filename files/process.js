@@ -310,7 +310,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                                                 // Delete
                                                 if (typeof accountID === "string" || typeof accountID === "number") {
-                                                    deleteDatabases[item].child(account).remove().then(() => {
+                                                    deleteDatabases[item].child(accountID).remove().then(() => {
                                                         fn(); return;
                                                     }).catch(() => {
                                                         logger.error(err); fn_error(err); return;
