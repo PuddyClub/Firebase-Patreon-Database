@@ -1,4 +1,4 @@
-module.exports = async function (req, res, db, http_page, firebase, custom_modules, _) {
+module.exports = async function(req, res, db, http_page, firebase, custom_modules, _) {
 
     // Modules
     const logger = firebase.logger;
@@ -61,6 +61,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                         // Prepare User Data
                         db = db.child(firebase.databaseEscape(req.query.account));
+                        let dbTiers = db.child(firebase.databaseEscape(req.query.account) + '_tiers');
 
                         // Prepare Body
                         req.body = JSON.parse(req.body);
@@ -75,6 +76,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                             // Get Patreon Data DB
                             let patreon_data = db.child('main').child(firebase.databaseEscape(finalData.patron_id));
+                            let patreon_data_2 = dbTiers.child('main').child(firebase.databaseEscape(finalData.patron_id));
 
                             // Get Last Data
                             let last_data = await firebase.getDBAsync(patreon_data);
@@ -129,7 +131,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                                     // Convert to Key Array
                                     let levelKeys = Object.keys(patreon_settings.levels);
-                                    levelKeys.sort(function (a, b) { return Number(b) - Number(a) });
+                                    levelKeys.sort(function(a, b) { return Number(b) - Number(a) });
 
                                     // Order
                                     for (const item in levelKeys) {
@@ -161,8 +163,8 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                 const deleteDatabases = {};
 
                                 // Build Extra Data
-                                const build_extra_data = function (options) {
-                                    return new Promise(function (resolve, reject) {
+                                const build_extra_data = function(options) {
+                                    return new Promise(function(resolve, reject) {
 
 
                                         // Prepare User Data
@@ -248,19 +250,19 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                     { database: 'youtube' }
                                 ];
 
-                                await forPromise({ data: extra_data }, function (item, fn, fn_error) {
+                                await forPromise({ data: extra_data }, function(item, fn, fn_error) {
                                     build_extra_data(extra_data[item]).then(() => { fn(); return; }).catch(err => { fn_error(err); return; });
                                 });
 
                                 // Insert Social Data
                                 if (social_list && social_list.data) {
-                                    await forPromise({ data: social_list.data }, function (item, fn, fn_error, extra) {
+                                    await forPromise({ data: social_list.data }, function(item, fn, fn_error, extra) {
 
                                         // Prepare Patreon Data
                                         insert_data[item] = social_list.data[item];
 
                                         const extraForAwait = extra({ data: social_list.data });
-                                        extraForAwait.run(function (item2, fn) {
+                                        extraForAwait.run(function(item2, fn) {
 
                                             // Prepare Data to Insert
                                             const newData = {};
@@ -290,7 +292,7 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                                 // Delete OLD Data
                                 if (Object.keys(deleteDatabases).length > 0) {
-                                    await forPromise({ data: deleteDatabases }, function (item, fn, fn_error) {
+                                    await forPromise({ data: deleteDatabases }, function(item, fn, fn_error) {
                                         logger.log(`The User "${finalData.patron_id}" don't have the social medias. ${item}`);
                                         firebase.getDBData(deleteDatabases[item], 'value').then(accounts => {
 
@@ -311,9 +313,12 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                                 // Delete
                                                 if (typeof accountID === "string" || typeof accountID === "number") {
                                                     deleteDatabases[item].child(accountID).remove().then(() => {
-                                                        fn(); return;
+                                                        fn();
+                                                        return;
                                                     }).catch(() => {
-                                                        logger.error(err); fn_error(err); return;
+                                                        logger.error(err);
+                                                        fn_error(err);
+                                                        return;
                                                     });
                                                 }
 
@@ -328,7 +333,11 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
                                             // Complete
                                             return;
 
-                                        }).catch(err => { logger.error(err); fn_error(err); return; });
+                                        }).catch(err => {
+                                            logger.error(err);
+                                            fn_error(err);
+                                            return;
+                                        });
                                     });
                                 }
 
@@ -351,9 +360,11 @@ module.exports = async function (req, res, db, http_page, firebase, custom_modul
 
                                 // Insert Patreon Data
                                 if (isInsert) {
+                                    await patreon_data_2.set(insert_data);
                                     await patreon_data.set(insert_data);
                                     await custom_module_manager.run(custom_modules, custom_module_options, 'add');
                                 } else {
+                                    await patreon_data_2.remove(insert_data);
                                     await patreon_data.remove();
                                     await custom_module_manager.run(custom_modules, custom_module_options, 'remove');
                                 }
