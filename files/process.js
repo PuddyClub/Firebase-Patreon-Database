@@ -64,8 +64,8 @@ module.exports = async function(req, res, db, http_page, firebase, custom_module
                         }
 
                         // Prepare User Data
-                        db = db.child(firebase.databaseEscape(req.query.account));
                         let dbTiers = db.child(firebase.databaseEscape(req.query.account) + '_tiers');
+                        db = db.child(firebase.databaseEscape(req.query.account));
 
                         // Prepare Body
                         req.body = JSON.parse(req.body);
