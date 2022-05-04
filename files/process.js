@@ -398,7 +398,7 @@ module.exports = async function(req, res, db, http_page, firebase, custom_module
                                     await patreon_data.set(insert_data);
                                     await custom_module_manager.run(custom_modules, custom_module_options, 'add');
                                 } else {
-                                    if (isPledge) { await patreon_data_2.remove(insert_data); }
+                                    if (isPledge) { await patreon_data_2.remove(); }
                                     await patreon_data.remove();
                                     await custom_module_manager.run(custom_modules, custom_module_options, 'remove');
                                 }
