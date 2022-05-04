@@ -43,14 +43,18 @@ module.exports = async function(req, res, db, http_page, firebase, custom_module
 
                     // Event Validator
                     const last_event_item = req.header('x-patreon-event');
+                    const isPledge = (
+                        last_event_item === "members:pledge:create" ||
+                        last_event_item === "members:pledge:update" ||
+                        last_event_item === "members:pledge:delete"
+                    );
+
                     if (
                         typeof last_event_item === "string" && (
                             last_event_item === "members:create" ||
                             last_event_item === "members:update" ||
                             last_event_item === "members:delete" ||
-                            last_event_item === "members:pledge:create" ||
-                            last_event_item === "members:pledge:update" ||
-                            last_event_item === "members:pledge:delete"
+                            isPledge
                         )
                     ) {
 
@@ -169,6 +173,7 @@ module.exports = async function(req, res, db, http_page, firebase, custom_module
 
                                         // Prepare User Data
                                         let user_data = null;
+                                        let user_data_2 = null;
 
                                         // Set User data
                                         if (!options.var_name) {
@@ -179,6 +184,7 @@ module.exports = async function(req, res, db, http_page, firebase, custom_module
                                             // The User Data
                                             if (finalData[options.var_name] && (typeof finalData[options.var_name].id === "string" || typeof finalData[options.var_name].id === "number")) {
                                                 user_data = db.child(options.database).child(firebase.databaseEscape(finalData[options.var_name].id));
+                                                user_data_2 = db.child(options.database).child(firebase.databaseEscape(finalData[options.var_name].id));
                                             }
 
                                         } else {
@@ -186,6 +192,7 @@ module.exports = async function(req, res, db, http_page, firebase, custom_module
                                             // The User Data
                                             if (typeof finalData[options.var_name] === "string" || typeof finalData[options.var_name] === "number") {
                                                 user_data = db.child(options.database).child(firebase.databaseEscape(finalData[options.var_name]));
+                                                user_data_2 = dbTiers.child(options.database).child(firebase.databaseEscape(finalData[options.var_name]));
                                             }
 
                                         }
@@ -205,10 +212,26 @@ module.exports = async function(req, res, db, http_page, firebase, custom_module
                                                     // Insert DB
                                                     social_list.db[options.var_name] = user_data;
 
-                                                    user_data.set(insert_data).then(() => { resolve(); return; }).catch(err => { reject(err); return; });
+                                                    user_data.set(insert_data).then(() => {
+                                                        if (isPledge) {
+                                                            user_data_2.set(insert_data).then(() => {
+                                                                resolve();
+                                                                return;
+                                                            }).catch(err => { reject(err); return; });
+                                                        } else { resolve(); }
+                                                        return;
+                                                    }).catch(err => { reject(err); return; });
 
                                                 } else {
-                                                    user_data.remove().then(() => { resolve(); return; }).catch(err => { reject(err); return; });
+                                                    user_data.remove().then(() => {
+                                                        if (isPledge) {
+                                                            user_data_2.remove().then(() => {
+                                                                resolve();
+                                                                return;
+                                                            }).catch(err => { reject(err); return; });
+                                                        } else { resolve(); }
+                                                        return;
+                                                    }).catch(err => { reject(err); return; });
                                                 }
 
                                             }
@@ -217,7 +240,16 @@ module.exports = async function(req, res, db, http_page, firebase, custom_module
                                             else if (last_data && typeof last_data[options.var_name] !== "undefined") {
 
                                                 // Make the Action
-                                                user_data.remove().then(() => { resolve(); return; }).catch(err => { reject(err); return; });
+                                                user_data.remove().then(() => {
+                                                    if (isPledge) {
+                                                        user_data_2.remove().then(() => {
+                                                            resolve();
+                                                            return;
+                                                        }).catch(err => { reject(err); return; });
+                                                    } else { resolve(); }
+                                                    return;
+                                                }).catch(err => { reject(err); return; });
+
 
                                             }
 
@@ -348,7 +380,9 @@ module.exports = async function(req, res, db, http_page, firebase, custom_module
                                 };
 
                                 // Set Campaign Data
-                                await campaign_data.set(finalData.vanilla.campaign);
+                                if (finalData.vanilla && finalData.vanilla.campaign) {
+                                    await campaign_data.set(finalData.vanilla.campaign);
+                                }
 
                                 // Prepare Custom Module
                                 const custom_module_manager = require('@tinypudding/puddy-lib/libs/custom_module_loader');
@@ -360,11 +394,11 @@ module.exports = async function(req, res, db, http_page, firebase, custom_module
 
                                 // Insert Patreon Data
                                 if (isInsert) {
-                                    await patreon_data_2.set(insert_data);
+                                    if (isPledge) { await patreon_data_2.set(insert_data); }
                                     await patreon_data.set(insert_data);
                                     await custom_module_manager.run(custom_modules, custom_module_options, 'add');
                                 } else {
-                                    await patreon_data_2.remove(insert_data);
+                                    if (isPledge) { await patreon_data_2.remove(insert_data); }
                                     await patreon_data.remove();
                                     await custom_module_manager.run(custom_modules, custom_module_options, 'remove');
                                 }
